@@ -1,5 +1,7 @@
 package dev.yk.movies;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,10 +16,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Review {
     @Id
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id; // its own review id but not a relation type of id
     private String reviewBody;
+    private ObjectId userId;
+    private String imdbTitle;
 
-    public Review(String reviewBody) {
+    public Review(String reviewBody, ObjectId userId, String imdbTitle) {
         this.reviewBody = reviewBody;
+        this.userId = userId;
+        this.imdbTitle = imdbTitle;
     }
 }

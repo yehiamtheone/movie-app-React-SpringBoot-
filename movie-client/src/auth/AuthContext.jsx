@@ -1,24 +1,34 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
-
-// 1. Create the context
+import { useQueryClient } from '@tanstack/react-query';
+import { setupAxiosInterceptors } from '../api/axiosTokenInterceptor';
+import moviesApi from '../api/axiosConfig';
+import { useDispatch } from 'react-redux';
+import { hideAlert, showAlert } from '../components/store/AlertSlice';
 const AuthContext = createContext(null);
 
 // 2. Create the provider component
 export const AuthProvider = ({ children }) => {
-  // Use localStorage to initialize state on page load
+  const dispatch = useDispatch();
+  const qc = useQueryClient();
   const [token, setToken] = useState(localStorage.getItem('authToken'));
   const [username, setUsername] = useState("");
 const navigate = useNavigate();
-  // Use useEffect to decode the token and update the username state
-  // This runs whenever the 'token' state changes
+  useEffect(()=>{
+    setupAxiosInterceptors(moviesApi, tokenExpiredlogOut);
+    
+
+  },[])
   useEffect(() => {
     if (token) {
       try {
-        const decodedToken = jwtDecode(token);
-        setUsername(decodedToken.sub);
+        // console.log(token);
+        const { username } = jwtDecode(token);
+        setUsername(username);
       } catch (error) {
+        console.log("error on effect check if token expired");
+        
         // If the token is invalid or expired, clear it
         localStorage.removeItem('authToken');
         setToken(null);
@@ -38,9 +48,18 @@ const navigate = useNavigate();
   // Function to handle logout
   const logOut = () => {
     localStorage.removeItem('authToken');
+    qc.clear();
     setToken(null);
     setUsername(null);
-    navigate("/");
+  };
+  const tokenExpiredlogOut = () => {
+    localStorage.removeItem('authToken');
+    qc.clear();
+    setToken(null);
+    setUsername(null);
+    navigate("/login");
+    dispatch(showAlert({message: "Your token expired please log in again", variant: "warning"}));
+    
   };
 
   // The value object to be provided to consumers

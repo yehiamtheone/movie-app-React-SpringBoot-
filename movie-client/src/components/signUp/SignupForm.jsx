@@ -2,10 +2,12 @@ import  { useState } from 'react';
 import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
 import { NavLink, useNavigate } from 'react-router-dom';
 import moviesApi from '../../api/axiosConfig';
-import GlobalAlert from '../alert/AlertBootstrap';
-import { useAlert } from '../../alertContext/AlertContext';
-const SignupForm = ({setSignUpSuccess}) => {
-  const { showAlert } = useAlert();
+import { useDispatch } from 'react-redux';
+import {useMutation} from '@tanstack/react-query'
+import { showAlert } from '../store/AlertSlice';
+
+const SignupForm = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     username: '',
@@ -13,47 +15,57 @@ const SignupForm = ({setSignUpSuccess}) => {
     password: '',
     confirmPassword: '',
   });
-  const [error, setError] = useState('')
+   const {mutate} = useMutation({
+      mutationFn: async(formDto)=> {
+        const response = await moviesApi.post('/auth/signup', formDto);
+        return response;
+    },
+      onSuccess:()=>{
+        setForm({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      })
+      navigate('/login');
+      dispatch(showAlert({message: "Signup successful!"}));
+      // setSignUpSuccess(true);    
+        
+      },
+      onError:(err)=>{
+        console.log(err);
+        
+        dispatch(showAlert({message: `Couldnt register check hooks`,variant: "danger"}))
+      }
+    });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
-
+     
   const handleSubmit = async(e) => {
     e.preventDefault()
-    setError('');
-    setSignUpSuccess(false);
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match')
+      dispatch(showAlert({ message: "Passwords do not match", variant: "danger", show: true }))
       return
     }
-    // Simulate successful signup
-    const {confirmPassword, ...formDto}  = form;
-    console.log(formDto);
-    try {
-        const response = await moviesApi.post('/auth/signup', formDto);
-        console.log(response.status);
-        if (response.status !== 201) {
-            showAlert(`Couldnt log in Error Code ${response.status}`, "danger");
-            // setError(`Couldnt log in Error Code ${response.status}`);
-            return;
-        }
-    } catch (error) {
-        console.log(error);
-
-        // setError(JSON.stringify(error.response.data));
-        return;
+    if (form.username.length < 3) {
+      dispatch(showAlert({ message: "Username Too Short", variant: "danger", show: true }))
+      return;
+      
     }
+    if (form.password.length < 5 ) {
+      dispatch(showAlert({ message: "Password Too Short", variant: "danger", show: true }))
+      return;
+      
+    }
+    // Simulate successful signup
+    
+    const {confirmPassword, ...formDto}  = form;
+    // console.log(formDto);
+    mutate(formDto);
         
-    setForm({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    })
-    navigate('/login');
-    showAlert("Signup successful!");
-    // setSignUpSuccess(true);    
+    
   }
 
   return (
@@ -62,7 +74,6 @@ const SignupForm = ({setSignUpSuccess}) => {
         <Col xs={12} md={6}>
           <h2 className="mb-4">Sign Up</h2>
           {/* {error && <Alert variant="danger">{error}</Alert>} */}
-          {<GlobalAlert/>}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formUsername">
               <Form.Label>Username</Form.Label>

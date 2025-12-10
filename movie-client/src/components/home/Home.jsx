@@ -1,10 +1,11 @@
 import React from 'react';
 import Hero from '../hero/Hero';
+import './home.css'
 
-const Home = ({movies}) => {
+const Home = () => {
   return (
-    <div>
-        <Hero movies= {movies}></Hero>
+    <div className='herohome'>
+        <Hero></Hero>
     </div>
   )
 }

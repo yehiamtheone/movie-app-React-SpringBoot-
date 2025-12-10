@@ -1,6 +1,4 @@
-import {useState, useEffect} from 'react';
 import './App.css';
-import moviesApi from './api/axiosConfig';
 import Layout from './components/Layout';
 import Home from './components/home/Home';
 import { Routes, Route } from 'react-router-dom';
@@ -11,86 +9,47 @@ import NotFound from './components/notFound/NotFound';
 import LoginForm from './components/login/LoginForm';
 import SignupForm from './components/signUp/SignupForm';
 import Profile from './components/profile/Profile';
+import WatchList from './components/watchlist/WatchList';
+import GlobalAlert from './components/alert/AlertBox';
+import { QueryClient } from '@tanstack/react-query';
+import Footer from './components/footer/Footer';
+import BlockLoginRouteForAuth from './BlockLoginRouteForAuth';
 function App() {
-  
-  const [movies, setMovies] = useState([]);
-  const [movie, setMovie] = useState({});
-  const [reviews, setReviews] = useState([]);
- 
+const queryClient = new QueryClient();
 
-  
-  const getMovies = async() =>{
-    try {
-      const response = await moviesApi.get("/movies");
-      
-      setMovies(response.data);
-  
-      
-    } catch (error) {
-      console.log(error);
-      
-    }
-  }
-   const getMovieData = async (movieId) => {
-     
-    try 
-    {
-        const response = await moviesApi.get(`/movies/${movieId}`);
-
-        const singleMovie = response.data;
-
-        setMovie(singleMovie);
-        
-        setReviews(singleMovie.reviewIds);
-
-        
-
-    } 
-    catch (error) 
-    {
-      console.error(error);
-    }
-
-  }
-  
-  useEffect(()=>{
-    getMovies();
-  },[])
   return (
-    
-      
     <div className="App">
+        {<GlobalAlert />}
       <Header/>
       <Routes>
         {/* Parent route that provides the Layout for its children */}
         <Route path="/" element={<Layout />}>
           {/* Use 'index' instead of path='/' for the default child */}
-          <Route index element={<Home movies={movies} />} />
-          <Route path='/signup' element={<SignupForm />} />
-          <Route path='/login' element={<LoginForm />} />
-          <Route path='/profile' element={<Profile />} />
-          
-          {/* These child routes will render inside the Layout's Outlet */}
-          
+          <Route index element={<Home/>} />
+          <Route path='signup' element={
+            <BlockLoginRouteForAuth>
+            <SignupForm />
+            </BlockLoginRouteForAuth>
+            } />
+          <Route path='login' element={
+            <BlockLoginRouteForAuth>
+              <LoginForm />
+            </BlockLoginRouteForAuth>
+            } />
+          <Route path='profile' element={<Profile />} />
           <Route path="Trailer/:ytTrailerId" element={<Trailer />} />
-          <Route
-            path="Reviews/:movieId"
-            element={
-              <Reviews
-                getMovieData={getMovieData}
-                movie={movie}
-                reviews={reviews}
-                setReviews={setReviews}
-              />
-            }
-          />
+          <Route path="Reviews/:movieId" element={<Reviews/>} />
+          <Route path='WatchList' element={<WatchList/>}></Route>
+          {/* These child routes will render inside the Layout's Outlet */}
         </Route>
         {/* The 404 route must be OUTSIDE and LAST to catch all unmatched paths */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Footer/>
     </div>
       
   );
 }
+
 
 export default App;

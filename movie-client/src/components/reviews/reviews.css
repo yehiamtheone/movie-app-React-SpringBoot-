@@ -1,0 +1,8 @@
+.container{
+    max-height: 815px;
+    color: white;
+}
+.reviewOverflow{
+    overflow: auto;
+    height: 700px;
+}

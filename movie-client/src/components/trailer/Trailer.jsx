@@ -11,7 +11,7 @@ const Trailer = () => {
         src={`https://www.youtube.com/watch?v=${ytTrailerId}`}
         controls
         width="100%"
-        height="100vh"   // try giving an explicit height
+        height="819px"   // try giving an explicit height
       />
 
 

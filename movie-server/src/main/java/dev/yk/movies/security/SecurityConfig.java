@@ -24,10 +24,14 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     @Value("${react.host}")
     private String reactHost;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -40,8 +44,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/{id}").permitAll()
                         .requestMatchers("/api/v1/reviews").authenticated()
+                        .requestMatchers("/api/v1/reviews/delete").authenticated()
+                        .requestMatchers(HttpMethod.PATCH ,"/api/v1/reviews/editRevBody").authenticated()
                         .requestMatchers("/api/v1/auth/getMyProfile").authenticated()
                         .requestMatchers("/api/v1/auth/younotwelcome").authenticated()
+                        .requestMatchers("/api/v1/auth/getUserById").authenticated()
+                        .requestMatchers("/api/v1/auth/AddToWatchList/{movieId}").authenticated()
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/auth/deleteUser").authenticated()
+                        .requestMatchers("/api/v1/auth/watchlist/removeone/{movieId}").authenticated()
+
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
@@ -53,7 +64,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(reactHost)); // Your React app
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
@@ -61,9 +72,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
-}

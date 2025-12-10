@@ -1,5 +1,6 @@
 package dev.yk.movies;
 
+import dev.yk.movies.dtos.UserReviewOnMovie;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,9 @@ public class MovieController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Movie>> getSingleMovie(@PathVariable String id){
-        return new ResponseEntity<>(movieService.singleMovieByImdbId(id), HttpStatus.OK);
+    public ResponseEntity<List<UserReviewOnMovie>> getSingleMovie(@PathVariable String id){
+//        System.out.println(movieService.singleMovieByImdbId(id));
+        return new ResponseEntity<>(movieService.singleMovieByImdbId(id),HttpStatus.OK);
     }
 
 

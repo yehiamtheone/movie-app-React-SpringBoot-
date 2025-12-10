@@ -1,18 +1,69 @@
+import './header.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faVideoSlash } from "@fortawesome/free-solid-svg-icons";
 import { Badge, Button, Dropdown, Container, Nav, Navbar } from "react-bootstrap";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-import { jwtDecode } from "jwt-decode";
+import { useDispatch} from "react-redux";
+import { showAlert } from "../store/AlertSlice";
+import { useMutation } from '@tanstack/react-query';
+import moviesApi from '../../api/axiosConfig';
+
 const Header = () => {
+    const dispatch = useDispatch();
+    
     const { token, logOut, username } = useAuth();
       let firstLetter = null;
+    const logoutProcess = ()=>{
+        logOut();
+        dispatch(showAlert({message: "logged Out successfully"}));
+        // showAlert("logged Out successfully");
 
+    }
+    const deletionProcess = ()=>{
+        //TODO: delete reviews from everywhere
+        logOut();
+        dispatch(showAlert({message: "Account deleted successfully"}));
+        // showAlert("logged Out successfully");
+
+    }
+    
     if (username) { // Check if username exists
         firstLetter = username.charAt(0).toUpperCase();
     }
+    const accountDeletion = ()=>{
+        const confirmed = window.confirm("You Sure To Delete Your Account?")
+        if (confirmed) {
+            console.log("Deletefn");
+            deleteAcc();
+            
+            
+        }
+        
+    }
+    const {mutate :deleteAcc} = useMutation({
+        mutationFn: async()=>{
+            const res = await moviesApi.delete("/auth/deleteUser",{
+                headers: {
+                    "Authorization" : `Bearer ${token}`
+                }
+            });
+            return res;
+        },
+        onSuccess:()=>{
+            deletionProcess();
+        },
+        onError:(err)=>{
+            console.log(err);
+            
+            dispatch(showAlert({message:"Unable To Delete Account", variant: "danger"}));
+            
+        }
+    });
     return (
-        <Navbar bg="dark" variant="dark" expand="lg">
+        <header>
+
+        <Navbar bg="dark" variant="dark" expand="lg" >
             <Container fluid>
                 <Navbar.Brand href="/" style={{ "color": 'gold' }}>
                     <FontAwesomeIcon icon={faVideoSlash} />
@@ -23,8 +74,7 @@ const Header = () => {
                         style={{ maxHeight: '100px' }}
                         navbarScroll>
                         <NavLink className="nav-link" to="/">Home</NavLink>
-                        <NavLink className="nav-link" to="/watchList">Watch List</NavLink>
-                        <NavLink className="nav-link" to="/profile">Profile</NavLink>
+                        <NavLink className="nav-link" to="/WatchList">Watch List</NavLink>
                     </Nav>
                     {token ? (
                 <Dropdown>
@@ -47,7 +97,8 @@ const Header = () => {
 
                     <Dropdown.Menu align="end">
                         <Dropdown.Item as={Link} to="/profile">My Profile</Dropdown.Item>
-                        <Dropdown.Item onClick={logOut}>Log Out</Dropdown.Item>
+                        <Dropdown.Item onClick={logoutProcess}>Log Out</Dropdown.Item>
+                        <Dropdown.Item onClick={accountDeletion} style={{color: "red"}}> <h6>Delete Account</h6> </Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             ) : (
@@ -61,8 +112,11 @@ const Header = () => {
                         </>
                     )}
                 </Navbar.Collapse>
+
             </Container>
         </Navbar>
+        </header>
+
     );
 };
 export default Header;

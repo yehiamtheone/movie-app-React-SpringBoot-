@@ -80,6 +80,7 @@ JWT_SECRET="<must-be-256-bits-secret>"
 ### git clone
 ```bash
 git clone https://github.com/yehiamtheone/movie-app.git
+cd movie-app
 ```
 #### springboot
 ```bash
@@ -92,7 +93,7 @@ cd movie-client
 npm run dev
 ```
 #
-**Things aren't finalized and project is still in progress this is the first commit where i check where things stand*
+**Things aren't finalized and project is still in progress those are the first commits where i check where things stand*
 
 
 

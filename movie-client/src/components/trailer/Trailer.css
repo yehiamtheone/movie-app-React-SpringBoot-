@@ -1,0 +1,7 @@
+.react-player-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;   /* optional: limit size */
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+}

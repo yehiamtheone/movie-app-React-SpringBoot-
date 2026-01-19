@@ -1,0 +1,19 @@
+services:
+  spring-boot-app:
+    build: ./movie-server
+    depends_on:
+      - mongo
+    environment:
+      # Use the service name 'mongo' instead of 'localhost' depends on production state
+      - MONGO_DATABASE_NAME=${MONGO_DATABASE_NAME}
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+  react-app:
+    build: 
+      context: ./movie-client
+      
+    ports:
+     - "80:80"
+    depends_on:
+      - spring-boot-app
+ 

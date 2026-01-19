@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&display=swap');
+
+.App {
+    box-sizing: border-box;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure the main content expands to push footer to the bottom */
+main{
+  flex: 1 0 auto;
+  background-color: black;
+}
+/* .globalalert{
+  position:relative;
+  top: 0px;
+  left: 0px;
+  z-index: 1000;
+  
+
+  
+} */
+
+/* Removes the caret from the specific dropdown toggle */
+/* #profile-dropdown::after {
+  display: none;
+} */

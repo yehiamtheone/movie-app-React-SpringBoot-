@@ -79,7 +79,7 @@ const Hero = () => {
     qc.setQueryData(['carouselIndex'], now);
   };
 
-  if (isPending) return <h1>Loading...</h1>;
+  if (isPending) return <h1>Loading... (Might take a few minutes to get the server app due to inactivity)</h1>;
   if (error) return <h1>Error connecting to the server</h1>;
 
   return (
